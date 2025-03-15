@@ -27,6 +27,7 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
         let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
             if let taskText = alertController.textFields?.first?.text , !taskText.isEmpty {
                 self.tasks.append(taskText)
+                UserDefaults.standard.set(self.tasks, forKey: "tasks")
                 self.tableView.reloadData()
             }
         }
@@ -40,10 +41,14 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
     }
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        if let savedTasks = UserDefaults.standard.array(forKey: "tasks") as? [String] {
+            self.tasks = savedTasks
+        }
+        
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -62,10 +67,11 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             tasks.remove(at: indexPath.row)
+            
+            UserDefaults.standard.set(self.tasks, forKey: "tasks")
+            
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
-    
-
 }
 
