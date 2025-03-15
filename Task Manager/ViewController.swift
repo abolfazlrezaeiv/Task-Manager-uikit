@@ -13,7 +13,7 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
 
     @IBOutlet var tableView: UITableView!
     
-    var tasks = [String]()
+    var tasks : [[String : Any]] = []
     
     
     @IBAction func addTaskTapped(_ sender: UIBarButtonItem) {
@@ -26,7 +26,9 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
         
         let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
             if let taskText = alertController.textFields?.first?.text , !taskText.isEmpty {
-                self.tasks.append(taskText)
+                let newTask : [String:Any] = ["title" : taskText, "completed" : false]
+                
+                self.tasks.append(newTask)
                 UserDefaults.standard.set(self.tasks, forKey: "tasks")
                 self.tableView.reloadData()
             }
@@ -45,7 +47,7 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
         tableView.dataSource = self
         tableView.delegate = self
         
-        if let savedTasks = UserDefaults.standard.array(forKey: "tasks") as? [String] {
+        if let savedTasks = UserDefaults.standard.array(forKey: "tasks") as? [[String:Any]] {
             self.tasks = savedTasks
         }
         
@@ -59,7 +61,10 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath)
         
-        cell.textLabel?.text = tasks[indexPath.row]
+        cell.textLabel?.text = tasks[indexPath.row]["title"] as? String
+        let isCompleted = tasks[indexPath.row]["completed"] as? Bool ?? false
+        
+        cell.accessoryType = isCompleted ? .checkmark : .none
         return cell
         
     }
@@ -72,6 +77,14 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
             
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tasks[indexPath.row]["completed"] = !(tasks[indexPath.row]["completed"] as? Bool ?? false)
+        
+        UserDefaults.standard.set(tasks, forKey: "tasks")
+        
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }
 
