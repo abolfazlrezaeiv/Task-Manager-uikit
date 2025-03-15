@@ -61,8 +61,16 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath)
         
-        cell.textLabel?.text = tasks[indexPath.row]["title"] as? String
+        let taskTitle = tasks[indexPath.row]["title"] as? String ?? ""
         let isCompleted = tasks[indexPath.row]["completed"] as? Bool ?? false
+        
+        // Apply strikethrough effect if completed
+        let attributedString = NSMutableAttributedString(string: taskTitle)
+        if isCompleted {
+            attributedString.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: taskTitle.count))
+        }
+        
+        cell.textLabel?.attributedText = attributedString
         
         cell.accessoryType = isCompleted ? .checkmark : .none
         return cell
