@@ -91,22 +91,21 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        var taskItem = tasks[indexPath.row]
+        let taskItem = tasks[indexPath.row]
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
         if let detailVC = storyboard.instantiateViewController(withIdentifier: "TaskDetailVC") as? TaskDetailViewController {
             detailVC.taskText = taskItem["title"] as? String
+            detailVC.taskIndex = indexPath.row
+            detailVC.onTaskUpdated = {updatedText , index in
+                self.tasks[index]["title"] = updatedText
+                self.tableView.reloadRows(at: [ IndexPath(row: index, section: 0)], with: .automatic)
+            }
             navigationController?.pushViewController(detailVC, animated: true)
         }
         
-        
-        
-//        tasks[indexPath.row]["completed"] = !(tasks[indexPath.row]["completed"] as? Bool ?? false)
-//        
-//        UserDefaults.standard.set(tasks, forKey: "tasks")
-//        
-//        tableView.reloadRows(at: [indexPath], with: .automatic)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {

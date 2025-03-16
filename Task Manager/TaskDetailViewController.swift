@@ -11,13 +11,24 @@ import UIKit
 
 class TaskDetailViewController : UIViewController {
     var taskText : String?
+    var taskIndex : Int?
+    var onTaskUpdated : ((String,Int) -> Void)?
     
     
-    @IBOutlet var taskLabel: UILabel!
+    @IBOutlet var taskTextField: UITextField!
+    
+    @IBAction func saveTask(_ sender: Any) {
+        guard let newText = taskTextField.text, let index = taskIndex else { return  }
+        
+        onTaskUpdated?(newText,index)
+        
+        navigationController?.popViewController(animated: true)
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        taskLabel.text = taskText ?? ""
-        taskLabel.textAlignment = .left
+        taskTextField.text = taskText
+
     }
 }
