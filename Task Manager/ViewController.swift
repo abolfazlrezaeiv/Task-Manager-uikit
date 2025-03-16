@@ -47,6 +47,9 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
         tableView.dataSource = self
         tableView.delegate = self
         
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        tableView.addGestureRecognizer(longPress)
+        
         if let savedTasks = UserDefaults.standard.array(forKey: "tasks") as? [[String:Any]] {
             self.tasks = savedTasks
         }
@@ -83,16 +86,37 @@ class ViewController: UIViewController, UITableViewDataSource,UITableViewDelegat
             
             UserDefaults.standard.set(self.tasks, forKey: "tasks")
             
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tasks[indexPath.row]["completed"] = !(tasks[indexPath.row]["completed"] as? Bool ?? false)
+        var taskItem = tasks[indexPath.row]
         
-        UserDefaults.standard.set(tasks, forKey: "tasks")
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+        if let detailVC = storyboard.instantiateViewController(withIdentifier: "TaskDetailVC") as? TaskDetailViewController {
+            detailVC.taskText = taskItem["title"] as? String
+            navigationController?.pushViewController(detailVC, animated: true)
+        }
+        
+        
+        
+//        tasks[indexPath.row]["completed"] = !(tasks[indexPath.row]["completed"] as? Bool ?? false)
+//        
+//        UserDefaults.standard.set(tasks, forKey: "tasks")
+//        
+//        tableView.reloadRows(at: [indexPath], with: .automatic)
+    }
+    
+    @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            let touchPoint = gesture.location(in: tableView)
+            if let indexPath = tableView.indexPathForRow(at: touchPoint) {
+                tasks[indexPath.row]["title"]  = "\(tasks[indexPath.row]["title"]!) ✅"  // Mark as completed
+                tableView.reloadRows(at: [indexPath], with: .fade)
+            }
+        }
     }
 }
 
